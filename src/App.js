@@ -1,30 +1,59 @@
-/* eslint-disable no-const-assign */
-import { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "./index.scss";
+import { Success } from "./components/Success";
+import { Users } from "./components/Users/Main";
+
+const API = "https://reqres.in/api/users";
 
 export default function App() {
-  let [data, setData] = useState(0);
+  const [users, setUsers] = useState([]);
+  const [invites, setInvites] = useState([]);
+  const [isLoading, setLoading] = useState(true);
+  const [success, setSuccess] = useState(false);
+  const [searchValue, setSearchValue] = useState("");
 
-  function minus() {
-    setData((data -= 1));
-  }
+  useEffect(() => {
+    fetch(API)
+      .then((res) => res.json())
+      .then((json) => setUsers(json.data))
+      .catch((err) => {
+        console.warn(err);
+        console.log("Ошибка при получении пользователей");
+      })
+      .finally(() => setLoading(false));
+  }, []);
 
-  function plus() {
-    setData((data += 1));
-  }
+  const onChangeSearchValue = (e) => {
+    setSearchValue(e.target.value);
+  };
+
+  const onClickInvite = (id) => {
+    if (invites.includes(id)) {
+      setInvites((prev) => prev.filter((_id) => _id !== id));
+    } else {
+      setInvites((prev) => [...prev, id]);
+    }
+  };
+
+  const onClickSendInvites = () => {
+    setSuccess(true);
+  };
 
   return (
     <div className="App">
-      <div>
-        <h2>Счетчик:</h2>
-        <h1>{data}</h1>
-        <button className="minus" onClick={minus}>
-          Минус
-        </button>
-        <button className="plus" onClick={plus}>
-          Плюс
-        </button>
-      </div>
+      {success ? (
+        <Success count={invites.length} />
+      ) : (
+        <Users
+          searchValue={searchValue}
+          items={users}
+          isLoading={isLoading}
+          onChangeSearchValue={onChangeSearchValue}
+          invites={invites}
+          onClickInvite={onClickInvite}
+          onClickSendInvites={onClickSendInvites}
+        />
+      )}
     </div>
   );
 }
