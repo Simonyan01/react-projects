@@ -21,7 +21,7 @@ export default function App() {
         console.log("Ошибка при получении пользователей");
       })
       .finally(() => setLoading(false));
-  }, []);
+  }, [])
 
   const onChangeSearchValue = (e) => {
     setSearchValue(e.target.value);
