@@ -22,7 +22,7 @@ export default function App() {
           Минус
         </button>
         <button className="plus" onClick={plus}>
-          Плюс
+          Плюс+++
         </button>
       </div>
     </div>
