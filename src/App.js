@@ -3,14 +3,14 @@ import { useState } from "react";
 import "./index.scss";
 
 export default function App() {
-  let [data, setData] = useState(0);
+  let [data, setData] = useState(0)
 
   function minus() {
-    setData((data -= 1));
+    setData((data -= 1))
   }
 
   function plus() {
-    setData((data += 1));
+    setData((data += 1))
   }
 
   return (
@@ -26,5 +26,5 @@ export default function App() {
         </button>
       </div>
     </div>
-  );
+  )
 }
