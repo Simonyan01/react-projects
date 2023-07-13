@@ -27,7 +27,7 @@ function App() {
       const price = val / rates[fromCurrency];
       const result = price * rates[toCurrency];
       setToPrice(result.toFixed(2));
-      setFromPrice(val);
+      setFromPrice(val)
     },
     [fromCurrency, rates, toCurrency]
   );
