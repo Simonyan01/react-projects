@@ -2,15 +2,17 @@ import React, { useState, useEffect, useCallback } from "react";
 import { Block } from "./Block";
 import "./index.scss";
 
-function App() {
+const API = "https://api.exchangerate.host/latest";
+
+export default function App() {
   const [rates, setRates] = useState({});
-  const [fromCurrency, setFromCurrency] = useState("RUB");
-  const [toCurrency, setToCurrency] = useState("USD");
+  const [fromCurrency, setFromCurrency] = useState("AMD");
+  const [toCurrency, setToCurrency] = useState("RUB");
   const [fromPrice, setFromPrice] = useState(0);
   const [toPrice, setToPrice] = useState(0);
 
   useEffect(() => {
-    fetch("https://api.exchangerate.host/latest")
+    fetch(API)
       .then((res) => res.json())
       .then((json) => {
         setRates(json.rates);
@@ -26,8 +28,8 @@ function App() {
     (val) => {
       const price = val / rates[fromCurrency];
       const result = price * rates[toCurrency];
-      setToPrice(result.toFixed(2));
-      setFromPrice(val)
+      setToPrice(result.toFixed(1));
+      setFromPrice(val);
     },
     [fromCurrency, rates, toCurrency]
   );
@@ -35,7 +37,7 @@ function App() {
   const onChangeToPrice = useCallback(
     (val) => {
       const result = (rates[fromCurrency] / rates[toCurrency]) * val;
-      setFromPrice(result.toFixed(2));
+      setFromPrice(result.toFixed(0));
       setToPrice(val);
     },
     [fromCurrency, rates, toCurrency]
@@ -70,5 +72,3 @@ function App() {
     </div>
   );
 }
-
-export default App;
