@@ -1,74 +1,76 @@
-import React, { useState, useEffect, useCallback } from "react";
-import { Block } from "./Block";
+import React, { useState, useEffect } from "react";
+import { Collection } from "./Collection";
 import "./index.scss";
-
-const API = "https://api.exchangerate.host/latest";
+import { view } from "./view";
 
 export default function App() {
-  const [rates, setRates] = useState({});
-  const [fromCurrency, setFromCurrency] = useState("AMD");
-  const [toCurrency, setToCurrency] = useState("RUB");
-  const [fromPrice, setFromPrice] = useState(0);
-  const [toPrice, setToPrice] = useState(0);
+  const [collections, setCollections] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [page, setPage] = useState(1);
+  const [searchValue, setSearchValue] = useState("");
+  const [categoriId, setCategoriId] = useState(0);
 
   useEffect(() => {
-    fetch(API)
+    setIsLoading(true);
+    const category = categoriId ? `category=${categoriId}` : "";
+    
+    fetch(
+      `https://64b13c9e062767bc4825e54e.mockapi.io/photos?page=${page}&limit=3&${category}`
+    )
       .then((res) => res.json())
       .then((json) => {
-        setRates(json.rates);
-        console.log(json.rates);
+        setCollections(json);
       })
       .catch((err) => {
         console.warn(err);
-        console.log("Не удалось получить информацию");
-      });
-  }, []);
-
-  const onChangeFromPrice = useCallback(
-    (val) => {
-      const price = val / rates[fromCurrency];
-      const result = price * rates[toCurrency];
-      setToPrice(result.toFixed(1));
-      setFromPrice(val);
-    },
-    [fromCurrency, rates, toCurrency]
-  );
-
-  const onChangeToPrice = useCallback(
-    (val) => {
-      const result = (rates[fromCurrency] / rates[toCurrency]) * val;
-      setFromPrice(result.toFixed(0));
-      setToPrice(val);
-    },
-    [fromCurrency, rates, toCurrency]
-  );
-
-  useEffect(() => {
-    onChangeFromPrice(fromPrice);
-    onChangeToPrice(toPrice);
-  }, [
-    fromCurrency,
-    fromPrice,
-    onChangeFromPrice,
-    toCurrency,
-    toPrice,
-    onChangeToPrice,
-  ]);
+        console.log("Ошибка при получении данных");
+      })
+      .finally(() => setIsLoading(false));
+  }, [categoriId, page]);
 
   return (
     <div className="App">
-      <Block
-        value={fromPrice}
-        currency={fromCurrency}
-        onChangeCurrency={setFromCurrency}
-        onChangeValue={onChangeFromPrice}
-      />
-      <Block
-        value={toPrice}
-        currency={toCurrency}
-        onChangeCurrency={setToCurrency}
-        onChangeValue={onChangeToPrice}
-      />
+      <h1>Моя коллекция фотографий</h1>
+      <div className="top">
+        <ul className="tags">
+          {view.map((obj, i) => (
+            <li
+              onClick={() => setCategoriId(i)}
+              className={categoriId === i ? "active" : ""}
+              key={obj.name}
+            >
+              {obj.name}
+            </li>
+          ))}
+        </ul>
+        <input
+          className="search-input"
+          value={searchValue}
+          onChange={(e) => setSearchValue(e.target.value)}
+          placeholder="Поиск по названию"
+        />
+      </div>
+      <div className="content">
+        {isLoading ? (
+          <h2>Идёт загрузка ...</h2>
+        ) : (
+          collections.map((obj, index) => (
+            <Collection key={index} name={obj.name} images={obj.photos} />
+          ))
+        )}
+      </div>
+      <ul className="pagination">
+        {[
+          ...Array(5).map((_, i) => (
+            <li
+              onClick={() => setPage(i + 1)}
+              className={page === i + 1 ? "active" : ""}
+            >
+              {i + 1}
+            </li>
+          )),
+        ]}
+      </ul>
     </div>
   );
 }
